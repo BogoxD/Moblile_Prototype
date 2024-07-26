@@ -16,9 +16,9 @@ public class WallPiece : MonoBehaviour
         rb.isKinematic = true;
 
     }
-    private void FixedUpdate()
+    private void LateUpdate()
     {
-        if(parent.currentHp <= 0)
+        if (parent.currentHp <= 0)
         {
             rb.isKinematic = false;
         }
@@ -28,16 +28,16 @@ public class WallPiece : MonoBehaviour
         if (collision.impulse.magnitude >= parent.breakFroce && collision.transform.CompareTag("Projectile"))
         {
             Collider[] wallpieces = Physics.OverlapSphere(collision.transform.position, parent.breakRadius);
-            
+
             for (int i = 0; i < wallpieces.Length; i++)
             {
-                Rigidbody piece = wallpieces[i].GetComponent<Rigidbody>();
+                if (wallpieces[i].TryGetComponent<Rigidbody>(out Rigidbody piece))
+                {
+                    piece.isKinematic = false;
+                    piece.AddForce(collision.impulse * 0.1f, ForceMode.Impulse);
 
-                piece.isKinematic = false;
-                piece.AddForce(collision.impulse * 0.1f, ForceMode.Impulse);
-
-                Destroy(collision.gameObject, 0.1f);
-
+                    Destroy(collision.gameObject, 0.1f);
+                }
             }
         }
 
